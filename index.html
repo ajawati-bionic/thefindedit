@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Find Edit · Shop</title>
+<meta name="description" content="Every bag from The Find Edit reels, numbered. Tap the Find # from the video.">
+<link rel="icon" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --ink:#16131A; --muted:#6B6168; --acc:#FF5A7A; --acc-soft:#FFE3E9; --bg:#FFF7F8; --card:#FFFFFF; --line:#F1E4E7; }
+@media (prefers-color-scheme: dark) {
+  :root { --ink:#F6EEF0; --muted:#B5A9AE; --acc:#FF6F8C; --acc-soft:#3A2128; --bg:#141015; --card:#1F1A20; --line:#2F2730; }
+}
+* { box-sizing:border-box; margin:0; }
+body { background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans","Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+.wrap { max-width:520px; margin:0 auto; padding:28px 16px 48px; }
+header { text-align:center; }
+header img { width:84px; height:84px; border-radius:50%; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+h1 { font-size:24px; font-weight:800; margin-top:12px; }
+.sub { color:var(--muted); font-size:15px; margin-top:4px; }
+.jump { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:20px 0 6px; }
+.jump a { text-decoration:none; color:var(--ink); background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:999px; font-weight:700; font-size:14px; }
+.find { background:var(--card); border:1px solid var(--line); border-radius:22px; overflow:hidden; margin-top:18px; scroll-margin-top:16px; transition:box-shadow .3s, border-color .3s; }
+.find.hit { border-color:var(--acc); box-shadow:0 0 0 4px var(--acc-soft); }
+.pic { position:relative; aspect-ratio:4/5; background:var(--line); }
+.pic img { width:100%; height:100%; object-fit:cover; display:block; }
+.num { position:absolute; top:12px; left:12px; background:var(--ink); color:var(--bg); font-weight:800; font-size:15px; padding:7px 13px; border-radius:999px; }
+.new { position:absolute; top:12px; right:12px; background:var(--acc); color:#fff; font-weight:800; font-size:13px; padding:6px 11px; border-radius:999px; }
+.body { padding:16px 18px 18px; }
+.body h2 { font-size:20px; font-weight:800; }
+.body p { color:var(--muted); font-size:14px; margin-top:4px; }
+.item { display:flex; align-items:center; gap:12px; margin-top:14px; }
+.item .meta { flex:1; min-width:0; }
+.item .name { font-weight:700; font-size:15px; }
+.item .price { color:var(--muted); font-size:13px; margin-top:2px; }
+.buy { flex:none; text-decoration:none; background:var(--acc); color:#fff; font-weight:800; font-size:15px; padding:12px 16px; border-radius:14px; }
+.buy:active { transform:scale(.97); }
+footer { color:var(--muted); font-size:12.5px; text-align:center; margin-top:28px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="img/logo.png" alt="The Find Edit logo">
+    <h1>The Find Edit</h1>
+    <div class="sub">Saw a bag in a reel? Tap its <b>Find #</b> 👇</div>
+  </header>
+  <nav class="jump" id="jump"></nav>
+  <main id="finds"></main>
+  <footer>
+    #ad · As an Amazon Associate I earn from qualifying purchases.<br>
+    Prices are from when each reel was posted and may have changed. Model visuals are AI-generated.
+  </footer>
+</div>
+<script>
+// Newest first. To add a reel: put a new entry at the top (num, title, note, img, items).
+const TAG = 'thefindedi0fa-21';
+const FINDS = [
+  { num: '04', title: 'The half-moon bag everyone wants', note: 'Trending crossbody · phone, wallet, keys', img: 'img/find04.jpg',
+    items: [{ name: 'Lyrovo Crescent Bag', price: '₹440', asin: 'B0F5GS19M1' }] },
+  { num: '03', title: 'Fits your whole day, still classy', note: 'Light puffy tote · laptop, bottle, lunch', img: 'img/find03.jpg',
+    items: [{ name: 'Prplet Puffy Tote', price: '₹929', asin: 'B0FKY5PDWJ' }] },
+  { num: '02', title: 'Office by day, party by night', note: 'Fits a 15.6" laptop · handcrafted print', img: 'img/find02.jpg',
+    items: [{ name: 'ZOUK Laptop Tote', price: '₹1,279', asin: 'B09L79TM6D' }] },
+  { num: '01', title: '5 office totes under ₹1,500', note: 'All five from the reel', img: 'img/find01.jpg',
+    items: [
+      { name: 'ZOUK Laptop Tote', price: '₹1,279', asin: 'B09L79TM6D' },
+      { name: 'Lavie Betula Tote', price: '₹1,049', asin: 'B0D2DLQMGY' },
+      { name: 'The Purple Tree Print Tote', price: '₹1,425', asin: 'B0GTFPN6VR' },
+      { name: 'Prplet Puffy Tote', price: '₹929', asin: 'B0FKY5PDWJ' },
+      { name: 'Womanix Hobo Tote', price: '₹849', asin: 'B0DCSBTBF2' }] }
+];
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+document.getElementById('jump').innerHTML = FINDS.map(f => `<a href="#${f.num}">#${f.num}</a>`).join('');
+document.getElementById('finds').innerHTML = FINDS.map((f, i) => `
+  <section class="find" id="${f.num}">
+    <div class="pic"><img src="${f.img}" alt="${esc(f.items[0].name)} worn by the model" loading="${i < 2 ? 'eager' : 'lazy'}">
+      <span class="num">Find #${f.num}</span>${i === 0 ? '<span class="new">NEW</span>' : ''}</div>
+    <div class="body"><h2>${esc(f.title)}</h2><p>${esc(f.note)}</p>
+      ${f.items.map(it => `<div class="item"><div class="meta"><div class="name">${esc(it.name)}</div><div class="price">${it.price} when posted</div></div>
+        <a class="buy" href="https://www.amazon.in/dp/${it.asin}?tag=${TAG}" rel="sponsored nofollow noopener" target="_blank">Shop on Amazon →</a></div>`).join('')}
+    </div>
+  </section>`).join('');
+// Links like .../#04 (from the DM bot) jump to and highlight that find
+function highlight() {
+  document.querySelectorAll('.find.hit').forEach(e => e.classList.remove('hit'));
+  const el = document.getElementById(location.hash.slice(1));
+  if (el) { el.classList.add('hit'); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+addEventListener('hashchange', highlight); highlight();
+</script>
+</body>
+</html>
